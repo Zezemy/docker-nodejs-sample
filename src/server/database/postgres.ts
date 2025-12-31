@@ -12,14 +12,14 @@ export class PostgresDatabase implements DatabaseInterface {
 
     console.log(`Waiting for PostgreSQL at ${config.host}:${config.port || 5432}...`);
 
-    const portOpen = await waitPort({
+    const portOpen = (await waitPort({
       host: config.host,
       port: config.port || 5432,
       timeout: 30000,
       waitForDns: true,
-    });
+    })) as unknown as boolean | { open: boolean };
 
-    if (!portOpen) {
+    if (portOpen === false || (typeof portOpen === 'object' && !portOpen.open)) {
       throw new Error(
         `Unable to connect to PostgreSQL at ${config.host}:${config.port || 5432}. Make sure the database is running.`
       );
